@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: http-multiplexing-reactive
+
+server:
+  port: 8080
+
+
+provider:
+  baseUrl: http://localhost:9998

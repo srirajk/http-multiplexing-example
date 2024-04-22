@@ -1,15 +1,12 @@
 import os
 
 import locust
-from locust import HttpUser, task, between
+from locust import HttpUser, task, between, tag
 # from locust import
 import uuid
 import json
 
-# with open("custom_config.conf", "r") as f:
-#     config = json.load(f)
-virtual_threads_base_url = "http://localhost:8099/virtualThreads"
-regular_threads_base_url = "http://localhost:8098/regularThreads"
+
 
 
 class UserBehavior(locust.TaskSet):
@@ -17,39 +14,51 @@ class UserBehavior(locust.TaskSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.client_virtual = self.client
-        self.client_virtual.base_url = "http://localhost:8099/virtualThreads"
-
+        self.client_virtual.base_url = os.getenv("VIRTUAL_THREADS_BASE_URL", "http://localhost:8099/virtualThreads")
         self.client_regular = self.client
-        self.client_regular.base_url = "http://localhost:8098/regularThreads"
+        self.client_regular.base_url = os.getenv("REGULAR_THREADS_BASE_URL", "http://localhost:8098/regularThreads")
+        self.reactive = self.client
+        self.reactive.base_url = os.getenv("REACTIVE_THREADS_BASE_URL", "http://localhost:8080/reactive")
 
-
-    #
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     # self.virtual_threads_base_url = self.client.get_client(base_url=get_config["virtual_threads_base_url"])
-    #     # self.regular_threads_base_url = self.client.get_client(base_url=get_config["regular_threads_base_url"])
-    #     self.virtual_threads_base_url = self.client.get_client(base_url="http://localhost:8099/virtualThreads")
-    #     self.regular_threads_base_url = self.client.get_client(base_url="http://localhost:8098/regularThreads")
-
-    # @task
-    # def my_task(self):
-    #     sample_request = {"responseField1": "sample value", "responseField2": 1}
-    #     headers = {'content-type': 'application/json'}
-    #     response = self.client.post("/api/provider/generateData", json=sample_request, headers=headers)
-    #     print(response.status_code)
-    #     print(response.text)
 
     @task
+    @tag("reactive")
+    def reactive_threads(self):
+        response = self.reactive.post(f"/request/demo-example-1-{uuid.uuid4()}", name="reactive_threads")
+        status_code = response.status_code
+        if status_code == 200:
+            data = response.json()
+            is_error = data["error"]
+            if is_error:
+                response.failure(f"Some Error Occurred :: {data}")
+        else:
+            response.failure(f"Some Error Occurred && http status code  :: {status_code}")
+
+    @task
+    @tag("virtual")
     def virtual_threads(self):
-        response = self.client_virtual.post(f"{virtual_threads_base_url}/request/demo-example-1-{uuid.uuid4()}")
-        print(response.status_code)
-        print(response.text)
+        response = self.client_virtual.post(f"/request/demo-example-1-{uuid.uuid4()}", name="virtual_threads")
+        status_code = response.status_code
+        if status_code == 200:
+            data = response.json()
+            is_error = data["error"]
+            if is_error:
+                response.failure(f"Some Error Occurred :: {data}")
+        else:
+            response.failure(f"Some Error Occurred && http status code  :: {status_code}")
 
     @task
+    @tag("regular")
     def regular_threads(self):
-        response = self.client_regular.post(f"{regular_threads_base_url}/request/demo-example-1-{uuid.uuid4()}")
-        print(response.status_code)
-        print(response.text)
+        response = self.client_regular.post(f"/request/demo-example-1-{uuid.uuid4()}", name="regular_threads")
+        status_code = response.status_code
+        if status_code == 200:
+            data = response.json()
+            is_error = data["error"]
+            if is_error:
+                response.failure(f"Some Error Occurred :: {data}")
+        else:
+            response.failure(f"Some Error Occurred && http status code  :: {status_code}")
 
 
 class WebsiteUser(HttpUser):
