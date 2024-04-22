@@ -1,0 +1,86 @@
+version: '3.8'
+name: http-multiplexing
+services:
+  http-multiplexing-reactive:
+    container_name: http-multiplexing-reactive
+    build:
+      context: .
+      dockerfile: http-multiplexing-reactive/Dockerfile
+    environment:
+      - PROVIDER_BASE_URL=http://provider-api:8080
+#    ports:
+#      - "8080"
+    depends_on:
+      - provider-api
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+
+  http-multiplexing-virtual-threads:
+    container_name: http-multiplexing-virtual-threads
+    build:
+      context: .
+      dockerfile: http-multiplexing-virtual-threads/Dockerfile
+    environment:
+      - PROVIDER_BASE_URL=http://provider-api:8080
+#    ports:
+#      - "8080:8080"
+    depends_on:
+      - provider-api
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+
+  http-multiplexing-regular:
+    container_name: http-multiplexing-regular
+    build:
+      context: .
+      dockerfile: http-multiplexing-regular/Dockerfile
+    environment:
+      - CORE_POOL_SIZE=8
+      - MAX_POOL_SIZE=8
+      - QUEUE_CAPACITY=10000
+      - PROVIDER_BASE_URL=http://provider-api:8080
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+    depends_on:
+      - provider-api
+#    ports:
+#      - "8080:8080"
+
+  provider-api:
+    container_name: provider-api
+    build:
+      context: .
+      dockerfile: provider-api/Dockerfile
+#    ports:
+#      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+
+  performance-test:
+    container_name: performance-test
+    build:
+      context: .
+      dockerfile: performance-test/Dockerfile
+    environment:
+      - VIRTUAL_THREADS_BASE_URL=http://http-multiplexing-virtual-threads:8080/virtualThreads
+      - REGULAR_THREADS_BASE_URL=http://http-multiplexing-regular:8080/regularThreads
+      - REACTIVE_THREADS_BASE_URL=http://http-multiplexing-reactive:8080/reactive
+    ports:
+      - "8089:8089"
+    depends_on:
+      - http-multiplexing-reactive
+      - http-multiplexing-virtual-threads
+      - http-multiplexing-regular
+      - provider-api

@@ -3,4 +3,4 @@ spring:
     name: provider-api
 
 server:
-  port: 9998
+  port: 8080
