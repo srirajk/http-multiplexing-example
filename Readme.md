@@ -52,5 +52,10 @@ A mock Provider API simulates the external service, allowing us to test our impl
 - Spring Boot application with endpoints that simulate data retrieval.
 - Controlled response times to mimic real-world API behavior.
 
+### Choosing the Right Approach
+- For CPU-bound tasks: Regular Spring Web with an Executor pool may be more appropriate if the tasks involve heavy computation and you need fine-grained control over thread allocation and management.
+- For I/O-bound tasks: Spring Reactive is ideal due to its non-blocking nature and efficient resource utilization. It excels in environments where you have high I/O operations like remote API calls or database transactions.
+- For a mix or high volume of lightweight tasks: Using virtual threads with Spring Boot can be advantageous as it allows each task to behave as if it's running in its own dedicated thread without the associated overhead.
+
 ## Running the Project
 - docker-compose up
