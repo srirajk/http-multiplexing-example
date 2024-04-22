@@ -1,3 +1,5 @@
+import os
+
 import locust
 from locust import HttpUser, task, between
 # from locust import
@@ -11,6 +13,16 @@ regular_threads_base_url = "http://localhost:8098/regularThreads"
 
 
 class UserBehavior(locust.TaskSet):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.client_virtual = self.client
+        self.client_virtual.base_url = "http://localhost:8099/virtualThreads"
+
+        self.client_regular = self.client
+        self.client_regular.base_url = "http://localhost:8098/regularThreads"
+
+
     #
     # def __init__(self, *args, **kwargs):
     #     super().__init__(*args, **kwargs)
@@ -29,17 +41,17 @@ class UserBehavior(locust.TaskSet):
 
     @task
     def virtual_threads(self):
-        response = self.client.post(f"{virtual_threads_base_url}/request/demo-example-1-{uuid.uuid4()}")
+        response = self.client_virtual.post(f"{virtual_threads_base_url}/request/demo-example-1-{uuid.uuid4()}")
         print(response.status_code)
         print(response.text)
 
     @task
     def regular_threads(self):
-        response = self.client.post(f"{regular_threads_base_url}/request/demo-example-1-{uuid.uuid4()}")
+        response = self.client_regular.post(f"{regular_threads_base_url}/request/demo-example-1-{uuid.uuid4()}")
         print(response.status_code)
         print(response.text)
 
 
 class WebsiteUser(HttpUser):
     tasks = [UserBehavior]
-    # wait_time = between(5, 15)
+    #wait_time = between(5, 15)

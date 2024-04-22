@@ -33,6 +33,7 @@ public class ProviderClient {
 
 
     public SampleResponse getProviderData(final String input) {
+        log.info("Invoking Provider API with input :: {}", input);
         final SampleRequest request = new SampleRequest();
         request.setResponseField1("Response Field 1 :: " + UUID.randomUUID() + " :: " + input);
         request.setResponseField2(rand.nextInt(100));
