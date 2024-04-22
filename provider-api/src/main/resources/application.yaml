@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: provider-api
+
+server:
+  port: 9998

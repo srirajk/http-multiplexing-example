@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: http-multiplexing-regular
+
+server:
+  port: 9997
+
+provider:
+  baseUrl: http://localhost:9998
