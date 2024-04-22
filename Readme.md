@@ -1,12 +1,12 @@
-# API-Service Implementation Strategies
+# Different Implementation Strategies for Multiplexing HTTP Requests in Spring Boot
 
 ## Overview
 
-This document outlines the architecture of an API service designed to make multiple calls to a Provider API, merge the results, and perform a database lookup. We implement this in three distinct ways:
+This document presents the architecture of an API service. The service is designed to execute multiple calls to a Provider API, consolidate the results, and perform a database lookup. The project showcases three distinct implementations:
 
-- Using regular Spring Boot with `RestClient`.
-- Using Spring Boot with virtual threads.
-- Using Spring WebFlux.
+- Regular Spring Boot with `RestClient`.
+- Spring Boot with virtual threads.
+- Spring WebFlux.
 
 ![usecase-image.png](usecase-image.png)
 
